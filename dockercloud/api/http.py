@@ -11,6 +11,26 @@ from .exceptions import ApiError, AuthError
 
 logger = logging.getLogger("python-dockercloud")
 
+global_session = Session()
+
+
+def get_session():
+    return global_session
+
+
+def close_session():
+    try:
+        global global_session
+        global_session.close()
+    except:
+        pass
+
+
+def new_session():
+    close_session()
+    global global_session
+    global_session = Session()
+
 
 def send_request(method, path, inject_header=True, **kwargs):
     json = None
@@ -24,17 +44,16 @@ def send_request(method, path, inject_header=True, **kwargs):
     # construct headers
     headers = {'Content-Type': 'application/json', 'User-Agent': user_agent}
     headers.update(dockercloud.auth.get_auth_header())
-    logger.info("Request: %s, %s, %s, %s" % (method, url, headers, kwargs))
 
     # construct request
-    s = Session()
+    s = get_session()
     req = Request(method, url, headers=headers, **kwargs)
-
     # get environment proxies
     env_proxies = utils.get_environ_proxies(url) or {}
     kw_args = {'proxies': env_proxies}
 
     # make the request
+    logger.info("Request: %s, %s, %s, %s, %s" % (method, url, headers, s.cookies, kwargs))
     response = s.send(req.prepare(), **kw_args)
     status_code = getattr(response, 'status_code', None)
     logger.info("Response: Status %s, %s, %s" % (str(status_code), response.headers, response.text))
