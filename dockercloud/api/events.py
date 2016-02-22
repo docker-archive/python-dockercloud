@@ -28,7 +28,7 @@ class Events(StreamingAPI):
             return
 
         if self.message_handler:
-            self.message_handler(event)
+            self.message_handler(message)
 
     def run_forever(self, *args, **kwargs):
         while True:
