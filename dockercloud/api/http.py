@@ -47,14 +47,15 @@ def send_request(method, path, inject_header=True, **kwargs):
 
     # construct request
     s = get_session()
-    req = Request(method, url, headers=headers, **kwargs)
+    request = Request(method, url, headers=headers, **kwargs)
     # get environment proxies
     env_proxies = utils.get_environ_proxies(url) or {}
     kw_args = {'proxies': env_proxies}
 
     # make the request
-    logger.info("Request: %s, %s, %s, %s, %s" % (method, url, headers, s.cookies, kwargs))
-    response = s.send(req.prepare(), **kw_args)
+    req = s.prepare_request(request)
+    logger.info("Prepared Request: %s, %s, %s, %s" % (req.method, req.url, req.headers, kwargs))
+    response = s.send(req, **kw_args)
     status_code = getattr(response, 'status_code', None)
     logger.info("Response: Status %s, %s, %s" % (str(status_code), response.headers, response.text))
 
