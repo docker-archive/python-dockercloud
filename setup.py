@@ -25,12 +25,15 @@ def find_version(*file_paths):
         return version_match.group(1)
     raise RuntimeError('Unable to find version string.')
 
+with open('./test-requirements.txt') as test_reqs_txt:
+        test_requirements = [line for line in test_reqs_txt]
 
 setup(
         name="python-dockercloud",
         version=find_version('dockercloud', '__init__.py'),
         packages=find_packages(),
         install_requires=requirements,
+        tests_require=test_requirements,
         provides=['docker'],
         include_package_data=True,
         author="Docker, Inc.",

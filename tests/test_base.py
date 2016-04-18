@@ -13,6 +13,7 @@ class RestfulTestCase(unittest.TestCase):
     def setUp(self):
         self.pk = Restful.pk
         Restful.pk = 'uuid'
+        dockercloud.api.http.invalid_auth_headers = []
 
     def tearDown(self):
         Restful.pk = self.pk
@@ -84,7 +85,7 @@ class RestfulTestCase(unittest.TestCase):
             model.endpoint = 'fake'
             model.subsystem = "subsystem"
             model._detail_uri = "/".join(
-                    ["api", model.subsystem, model._api_version, model.endpoint.lstrip("/"), model.pk])
+                ["api", model.subsystem, model._api_version, model.endpoint.lstrip("/"), model.pk])
             mock_send_request.side_effect = [{'key': 'value'}, None]
             self.assertTrue(model._perform_action('action', params={'k': 'v'}, data={'key': 'value'}))
             self.assertEqual('value', model.key)
