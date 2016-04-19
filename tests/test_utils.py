@@ -7,6 +7,9 @@ from dockercloud.api.exceptions import ObjectNotFound, ApiError, NonUniqueIdenti
 
 
 class FetchRemoteObjectTestCase(unittest.TestCase):
+    def setUp(self):
+        dockercloud.api.http.invalid_auth_headers = []
+
     @mock.patch('dockercloud.Container.list')
     @mock.patch('dockercloud.Container.fetch')
     def test_fetch_remote_container(self, mock_fetch, mock_list):

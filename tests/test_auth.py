@@ -14,6 +14,7 @@ class AuthTestCase(unittest.TestCase):
     def setUp(self):
         self.dockercloud_auth = dockercloud.dockercloud_auth
         self.basic_auth = dockercloud.basic_auth
+        dockercloud.api.http.invalid_auth_headers = []
 
     def tearDown(self):
         dockercloud.dockercloud_auth = self.dockercloud_auth

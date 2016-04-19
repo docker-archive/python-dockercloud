@@ -11,6 +11,9 @@ from .fake_api import fake_resp
 
 
 class SendRequestTestCase(unittest.TestCase):
+    def setUp(self):
+        dockercloud.api.http.invalid_auth_headers = []
+
     @mock.patch('dockercloud.api.http.Request', return_value=requests.Request('GET', 'http://fake.com'))
     @mock.patch.object(dockercloud.api.http.Session, 'send')
     def test_http_send_request(self, mock_send, mock_Request):

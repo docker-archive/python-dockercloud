@@ -257,12 +257,17 @@ class StreamingAPI(BasicObject):
 
     def _ws_init(self, url):
         self.url = url
+        self.auth_header = dockercloud.auth.get_auth_header()
 
         user_agent = 'python-dockercloud/%s' % dockercloud.__version__
         if dockercloud.user_agent:
             user_agent = "%s %s" % (dockercloud.user_agent, user_agent)
         header = {'User-Agent': user_agent}
-        header.update(dockercloud.auth.get_auth_header())
+
+        if self.auth_header in dockercloud.api.http.invalid_auth_headers:
+            raise AuthError("Not authorized: using a known invalid credentials")
+
+        header.update(self.auth_header)
         self.header = [": ".join([key, value]) for key, value in header.items()]
         logger.info("websocket: %s %s" % (self.url, self.header))
         self.open_handler = None
@@ -302,13 +307,15 @@ class StreamingAPI(BasicObject):
     def run_forever(self, *args, **kwargs):
         while True:
             if getattr(self, "auth_error", False):
+                if self.auth_header not in dockercloud.http.invalid_auth_headers:
+                    dockercloud.http.invalid_auth_headers.append(self.auth_header)
                 raise AuthError("Not authorized")
             ws = websocket.WebSocketApp(self.url, header=self.header,
                                         on_open=self._on_open,
                                         on_message=self._on_message,
                                         on_error=self._on_error,
                                         on_close=self._on_close)
-            ws.run_forever(ping_interval=5, ping_timeout=5, *args, **kwargs)
+            ws.run_forever(ping_interval=10, ping_timeout=5, *args, **kwargs)
 
 
 class StreamingLog(StreamingAPI):
@@ -329,7 +336,7 @@ class StreamingLog(StreamingAPI):
                                     on_message=self._on_message,
                                     on_error=self._on_error,
                                     on_close=self._on_close)
-        ws.run_forever(ping_interval=5, ping_timeout=5, *args, **kwargs)
+        ws.run_forever(ping_interval=10, ping_timeout=5, *args, **kwargs)
 
 
 class Exec(StreamingAPI):
@@ -348,4 +355,4 @@ class Exec(StreamingAPI):
                                     on_message=self._on_message,
                                     on_error=self._on_error,
                                     on_close=self._on_close)
-        ws.run_forever(ping_interval=5, ping_timeout=5, *args, **kwargs)
+        ws.run_forever(ping_interval=10, ping_timeout=5, *args, **kwargs)

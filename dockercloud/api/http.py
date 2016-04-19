@@ -13,6 +13,8 @@ logger = logging.getLogger("python-dockercloud")
 
 global_session = Session()
 
+invalid_auth_headers = []
+
 
 def get_session():
     return global_session
@@ -33,6 +35,7 @@ def new_session():
 
 
 def send_request(method, path, inject_header=True, **kwargs):
+    global invalid_auth_headers
     json = None
     url = urljoin(dockercloud.rest_host.rstrip("/"), path.strip("/").encode("ascii", "ignore"))
     if not url.endswith("/"):
@@ -43,7 +46,11 @@ def send_request(method, path, inject_header=True, **kwargs):
 
     # construct headers
     headers = {'Content-Type': 'application/json', 'User-Agent': user_agent}
-    headers.update(dockercloud.auth.get_auth_header())
+    auth_header = dockercloud.auth.get_auth_header()
+    if auth_header in invalid_auth_headers:
+        raise AuthError("Not authorized: using a known invalid credentials")
+
+    headers.update(auth_header)
 
     # construct request
     s = get_session()
@@ -78,6 +85,8 @@ def send_request(method, path, inject_header=True, **kwargs):
     else:
         # Server returned an error
         if status_code == 401:
+            if auth_header not in invalid_auth_headers:
+                invalid_auth_headers.append(auth_header)
             raise AuthError("Not authorized")
         else:
             raise ApiError("Status %s (%s %s). Response: %s" % (str(status_code), method, url, response.text))
