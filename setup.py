@@ -4,6 +4,13 @@ import re
 
 from setuptools import setup, find_packages
 
+requirements =[
+    "future >= 0.15.0, < 1",
+    "requests >= 2.5.2, < 3",
+    "six >= 1.3.0, < 2",
+    "websocket-client >= 0.32.0, < 1"
+]
+
 
 def read(*parts):
     path = os.path.join(os.path.dirname(__file__), *parts)
@@ -19,15 +26,16 @@ def find_version(*file_paths):
         return version_match.group(1)
     raise RuntimeError('Unable to find version string.')
 
+with open('./test-requirements.txt') as test_reqs_txt:
+    test_requirements = [line for line in test_reqs_txt]
 
-with open('requirements.txt') as f:
-    install_requires = f.read().splitlines()
 
 setup(
         name="python-dockercloud",
         version=find_version('dockercloud', '__init__.py'),
         packages=find_packages(),
-        install_requires=install_requires,
+        install_requires=requirements,
+        tests_require=test_requirements,
         provides=['docker'],
         include_package_data=True,
         author="Docker, Inc.",

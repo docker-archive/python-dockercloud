@@ -308,7 +308,7 @@ class StreamingAPI(BasicObject):
                                         on_message=self._on_message,
                                         on_error=self._on_error,
                                         on_close=self._on_close)
-            ws.run_forever(ping_interval=5, ping_timeout=5, *args, **kwargs)
+            ws.run_forever(ping_interval=10, ping_timeout=5, *args, **kwargs)
 
 
 class StreamingLog(StreamingAPI):
@@ -329,7 +329,7 @@ class StreamingLog(StreamingAPI):
                                     on_message=self._on_message,
                                     on_error=self._on_error,
                                     on_close=self._on_close)
-        ws.run_forever(ping_interval=5, ping_timeout=5, *args, **kwargs)
+        ws.run_forever(ping_interval=10, ping_timeout=5, *args, **kwargs)
 
 
 class Exec(StreamingAPI):
@@ -348,4 +348,4 @@ class Exec(StreamingAPI):
                                     on_message=self._on_message,
                                     on_error=self._on_error,
                                     on_close=self._on_close)
-        ws.run_forever(ping_interval=5, ping_timeout=5, *args, **kwargs)
+        ws.run_forever(ping_interval=10, ping_timeout=5, *args, **kwargs)
