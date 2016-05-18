@@ -264,7 +264,7 @@ class StreamingAPI(BasicObject):
         header = {'User-Agent': user_agent}
         header.update(dockercloud.auth.get_auth_header())
         self.header = [": ".join([key, value]) for key, value in header.items()]
-        logger.info("websocket: %s %s" % (self.url, self.header))
+        logger.info("Websocket: %s %s" % (self.url, self.header))
         self.open_handler = None
         self.message_handler = None
         self.error_handler = None
