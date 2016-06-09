@@ -58,7 +58,11 @@ class Restful(BasicObject):
         assert subsystem, "Subsystem not specified for %s" % self.__class__.__name__
         for k, v in list(dict.items()):
             setattr(self, k, v)
-        self._detail_uri = "/".join(["api", subsystem, self._api_version, endpoint.strip("/"), self.pk])
+        if dockercloud.namespace:
+            self._detail_uri = "/".join(["api", subsystem, self._api_version, dockercloud.namespace,
+                                         endpoint.strip("/"), self.pk])
+        else:
+            self._detail_uri = "/".join(["api", subsystem, self._api_version, endpoint.strip("/"), self.pk])
         self.__setchanges__([])
 
     @property
@@ -126,7 +130,10 @@ class Immutable(Restful):
         subsystem = getattr(cls, 'subsystem', None)
         assert endpoint, "Endpoint not specified for %s" % cls.__name__
         assert subsystem, "Subsystem not specified for %s" % cls.__name__
-        detail_uri = "/".join(["api", subsystem, cls._api_version, endpoint.strip("/"), pk])
+        if dockercloud.namespace:
+            detail_uri = "/".join(["api", subsystem, cls._api_version, dockercloud.namespace, endpoint.strip("/"), pk])
+        else:
+            detail_uri = "/".join(["api", subsystem, cls._api_version, endpoint.strip("/"), pk])
         json = send_request('GET', detail_uri)
         if json:
             instance = cls()
@@ -141,7 +148,10 @@ class Immutable(Restful):
         assert endpoint, "Endpoint not specified for %s" % cls.__name__
         assert subsystem, "Subsystem not specified for %s" % cls.__name__
 
-        detail_uri = "/".join(["api", subsystem, cls._api_version, endpoint.strip("/")])
+        if dockercloud.namespace:
+            detail_uri = "/".join(["api", subsystem, cls._api_version, dockercloud.namespace, endpoint.strip("/")])
+        else:
+            detail_uri = "/".join(["api", subsystem, cls._api_version, endpoint.strip("/")])
         objects = []
         while True:
             if limit and len(objects) >= limit:
@@ -219,7 +229,10 @@ class Mutable(Immutable):
             # Figure out whether we should do a create or update
             if not self._detail_uri:
                 action = "POST"
-                path = "/".join(["api", subsystem, self._api_version, endpoint.lstrip("/")])
+                if dockercloud.namespace:
+                    path = "/".join(["api", subsystem, self._api_version, dockercloud.namespace, endpoint.lstrip("/")])
+                else:
+                    path = "/".join(["api", subsystem, self._api_version, endpoint.lstrip("/")])
             else:
                 action = "PATCH"
                 path = self._detail_uri
@@ -316,7 +329,12 @@ class StreamingLog(StreamingAPI):
         endpoint = "%s/%s/logs/?follow=%s" % (resource, uuid, str(follow).lower())
         if tail:
             endpoint = "%s&tail=%d" % (endpoint, tail)
-        url = "/".join([dockercloud.stream_host.rstrip("/"), "api", subsystem, self._api_version, endpoint.lstrip("/")])
+        if dockercloud.namespace:
+            url = "/".join([dockercloud.stream_host.rstrip("/"), "api", subsystem, self._api_version,
+                            dockercloud.namespace, endpoint.lstrip("/")])
+        else:
+            url = "/".join([dockercloud.stream_host.rstrip("/"), "api", subsystem, self._api_version,
+                            endpoint.lstrip("/")])
         super(self.__class__, self).__init__(url)
 
     @staticmethod
@@ -335,7 +353,11 @@ class StreamingLog(StreamingAPI):
 class Exec(StreamingAPI):
     def __init__(self, uuid, cmd='sh'):
         endpoint = "container/%s/exec/?command=%s" % (uuid, urllib.quote_plus(cmd))
-        url = "/".join([dockercloud.stream_host.rstrip("/"), "api", "app", self._api_version, endpoint.lstrip("/")])
+        if dockercloud.namespace:
+            url = "/".join([dockercloud.stream_host.rstrip("/"), "api", "app", self._api_version,
+                            dockercloud.namespace, endpoint.lstrip("/")])
+        else:
+            url = "/".join([dockercloud.stream_host.rstrip("/"), "api", "app", self._api_version, endpoint.lstrip("/")])
         super(self.__class__, self).__init__(url)
 
     @staticmethod
