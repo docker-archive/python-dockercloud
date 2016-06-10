@@ -29,6 +29,19 @@ The authentication can be configured in the following ways:
 		export DOCKERCLOUD_USER=username
 		export DOCKERCLOUD_APIKEY=apikey
 
+## Namespace
+
+To support teams and orgs, you can specify the namespace in the following ways:
+
+* Set it in the Python code:
+
+        import dockercloud
+        dockercloud.namespace = "yourteam"
+
+* Set it in the environment variable:
+
+        export DOCKERCLOUD_NAMESPACE=yourteam
+
 ## Errors
 
 Errors in the HTTP API will be returned with status codes in the 4xx and 5xx ranges.
