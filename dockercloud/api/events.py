@@ -15,7 +15,12 @@ logger = logging.getLogger("python-dockercloud")
 class Events(StreamingAPI):
     def __init__(self):
         endpoint = "events"
-        url = "/".join([dockercloud.stream_host.rstrip("/"), "api", "audit", self._api_version, endpoint.lstrip("/")])
+        if dockercloud.namespace:
+            url = "/".join([dockercloud.stream_host.rstrip("/"), "api", "audit", self._api_version,
+                            dockercloud.namespace, endpoint.lstrip("/")])
+        else:
+            url = "/".join([dockercloud.stream_host.rstrip("/"), "api", "audit", self._api_version,
+                            endpoint.lstrip("/")])
         self.invaid_auth_headers = set()
         self.auth_error = ""
         super(self.__class__, self).__init__(url)
