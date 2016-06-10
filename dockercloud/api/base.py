@@ -22,6 +22,7 @@ class BasicObject(object):
 
 class Restful(BasicObject):
     _detail_uri = None
+    namespaced = True
 
     def __init__(self, **kwargs):
         """Simply reflect all the values in kwargs"""
@@ -58,7 +59,7 @@ class Restful(BasicObject):
         assert subsystem, "Subsystem not specified for %s" % self.__class__.__name__
         for k, v in list(dict.items()):
             setattr(self, k, v)
-        if dockercloud.namespace:
+        if self.namespaced and dockercloud.namespace:
             self._detail_uri = "/".join(["api", subsystem, self._api_version, dockercloud.namespace,
                                          endpoint.strip("/"), self.pk])
         else:
@@ -130,7 +131,7 @@ class Immutable(Restful):
         subsystem = getattr(cls, 'subsystem', None)
         assert endpoint, "Endpoint not specified for %s" % cls.__name__
         assert subsystem, "Subsystem not specified for %s" % cls.__name__
-        if dockercloud.namespace:
+        if cls.namespaced and dockercloud.namespace:
             detail_uri = "/".join(["api", subsystem, cls._api_version, dockercloud.namespace, endpoint.strip("/"), pk])
         else:
             detail_uri = "/".join(["api", subsystem, cls._api_version, endpoint.strip("/"), pk])
@@ -148,7 +149,7 @@ class Immutable(Restful):
         assert endpoint, "Endpoint not specified for %s" % cls.__name__
         assert subsystem, "Subsystem not specified for %s" % cls.__name__
 
-        if dockercloud.namespace:
+        if cls.namespaced and dockercloud.namespace:
             detail_uri = "/".join(["api", subsystem, cls._api_version, dockercloud.namespace, endpoint.strip("/")])
         else:
             detail_uri = "/".join(["api", subsystem, cls._api_version, endpoint.strip("/")])
@@ -229,7 +230,7 @@ class Mutable(Immutable):
             # Figure out whether we should do a create or update
             if not self._detail_uri:
                 action = "POST"
-                if dockercloud.namespace:
+                if cls.namespaced and dockercloud.namespace:
                     path = "/".join(["api", subsystem, self._api_version, dockercloud.namespace, endpoint.lstrip("/")])
                 else:
                     path = "/".join(["api", subsystem, self._api_version, endpoint.lstrip("/")])
