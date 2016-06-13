@@ -6,6 +6,7 @@ from .base import Immutable
 class Provider(Immutable):
     subsystem = "infra"
     endpoint = "/provider"
+    namespaced = False
 
     @classmethod
     def _pk_key(cls):

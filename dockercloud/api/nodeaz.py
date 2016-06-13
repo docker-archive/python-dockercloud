@@ -6,6 +6,7 @@ from .base import Immutable
 class AZ(Immutable):
     subsystem = "infra"
     endpoint = "/az"
+    namespaced = False
 
     @classmethod
     def _pk_key(cls):
