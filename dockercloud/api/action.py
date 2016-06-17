@@ -6,6 +6,7 @@ from .base import Immutable, StreamingLog
 class Action(Immutable):
     subsystem = 'audit'
     endpoint = "/action"
+    namespaced = False
 
     @classmethod
     def _pk_key(cls):
