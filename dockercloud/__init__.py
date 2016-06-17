@@ -25,7 +25,7 @@ from dockercloud.api.utils import Utils
 from dockercloud.api.events import Events
 from dockercloud.api.nodeaz import AZ
 
-__version__ = '1.0.6'
+__version__ = '1.0.7'
 
 dockercloud_auth = os.environ.get('DOCKERCLOUD_AUTH')
 basic_auth = auth.load_from_file("~/.docker/config.json")
