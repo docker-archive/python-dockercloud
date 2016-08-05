@@ -3,12 +3,14 @@ from __future__ import absolute_import
 import base64
 import json
 import os
+import subprocess
 
 from requests.auth import HTTPBasicAuth
 
 import dockercloud
 from .http import send_request
 
+HUB_INDEX = "https://index.docker.io/v1/"
 
 def authenticate(username, password):
     verify_credential(username, password)
@@ -43,10 +45,28 @@ def load_from_file(f="~/.docker/config.json"):
     try:
         with open(os.path.expanduser(f)) as config_file:
             data = json.load(config_file)
-
-        return data.get("auths", {}).get("https://index.docker.io/v1/", {}).get("auth", None)
-    except Exception:
+    except:
         return None
+
+    creds_store = data.get("credsStore", None)
+    if creds_store:
+        try:
+            cmd = "docker-credential-" + creds_store
+            p = subprocess.Popen([cmd, 'get'], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
+            out = p.communicate(input=HUB_INDEX)[0]
+        except:
+            raise dockercloud.AuthError('error getting credentials - err: exec: "%s": executable file not found in $PATH, out: ``' % cmd)
+
+        try:
+            credential = json.loads(out)
+            username = credential.get("Username")
+            password = credential.get("Secret")
+            return base64.b64encode("%s:%s" % (username, password))
+        except:
+            return None
+
+    else:
+        return data.get("auths", {}).get(HUB_INDEX, {}).get("auth", None)
 
 
 def get_auth_header():
