@@ -14,7 +14,8 @@ HUB_INDEX = "https://index.docker.io/v1/"
 
 def authenticate(username, password):
     verify_credential(username, password)
-    dockercloud.basic_auth = base64.b64encode("%s:%s" % (username, password))
+    cred = "%s:%s" % (username, password)
+    dockercloud.basic_auth = base64.b64encode(cred.encode()).decode()
 
 
 def verify_credential(username, password):
