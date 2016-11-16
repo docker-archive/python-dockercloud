@@ -38,7 +38,7 @@ if os.environ.get('DOCKERCLOUD_USER') and os.environ.get('DOCKERCLOUD_APIKEY'):
 rest_host = os.environ.get("DOCKERCLOUD_REST_HOST") or 'https://cloud.docker.com/'
 stream_host = os.environ.get("DOCKERCLOUD_STREAM_HOST") or 'wss://ws.cloud.docker.com/'
 
-namespace = os.environ.get('DOCKERCLOUD_NAMESPACE')
+namespace = os.environ.get('DOCKERCLOUD_NAMESPACE', '')
 
 user_agent = None
 

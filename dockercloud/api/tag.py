@@ -57,7 +57,7 @@ class Tag(BasicObject):
     def fetch(cls, taggable):
         if not isinstance(taggable, Taggable):
             raise ApiError("The object does not support tag")
-        if not taggable._detail_uri:
+        if not taggable.resource_uri:
             raise ApiError("You must save the taggable object before performing this operation")
 
         tag = cls()

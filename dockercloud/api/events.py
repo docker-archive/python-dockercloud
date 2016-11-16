@@ -13,11 +13,14 @@ logger = logging.getLogger("python-dockercloud")
 
 
 class Events(StreamingAPI):
-    def __init__(self):
+    def __init__(self, namespace=""):
         endpoint = "events"
-        if dockercloud.namespace:
+
+        if not namespace:
+            namespace = dockercloud.namespace
+        if namespace:
             url = "/".join([dockercloud.stream_host.rstrip("/"), "api", "audit", self._api_version,
-                            dockercloud.namespace, endpoint.lstrip("/")])
+                            namespace, endpoint.lstrip("/")])
         else:
             url = "/".join([dockercloud.stream_host.rstrip("/"), "api", "audit", self._api_version,
                             endpoint.lstrip("/")])
