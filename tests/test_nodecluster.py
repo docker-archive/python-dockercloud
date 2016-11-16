@@ -2,7 +2,10 @@ from __future__ import absolute_import
 
 import unittest
 
-import unittest.mock as mock
+try:
+    import mock
+except ImportError:
+    import unittest.mock as mock
 
 import dockercloud
 from .fake_api import *
@@ -40,7 +43,7 @@ class NodeClusterTestCase(unittest.TestCase):
         )
         mock_send.return_value = fake_resp(fake_nodecluster_save)
         cluster = dockercloud.NodeCluster.create(name="my_cluster", region="/api/v1/region/digitalocean/lon1/",
-                                                 node_type="/api/v1/nodetype/digitalocean/1gb/")
+                                             node_type="/api/v1/nodetype/digitalocean/1gb/")
         self.assertTrue(cluster.save())
         result = json.loads(json.dumps(cluster.get_all_attributes()))
         target = json.loads(json.dumps(attribute))
@@ -53,7 +56,7 @@ class NodeClusterTestCase(unittest.TestCase):
         )
         mock_send.side_effect = [fake_resp(fake_nodecluster_save), fake_resp(fake_nodecluster_deploy)]
         cluster = dockercloud.NodeCluster.create(name="my_cluster", region="/api/v1/region/digitalocean/lon1/",
-                                                 node_type="/api/v1/nodetype/digitalocean/1gb/")
+                                             node_type="/api/v1/nodetype/digitalocean/1gb/")
         cluster.save()
         self.assertTrue(cluster.deploy())
         result = json.loads(json.dumps(cluster.get_all_attributes()))

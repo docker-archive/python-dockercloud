@@ -2,7 +2,10 @@ from __future__ import absolute_import
 
 import unittest
 
-import unittest.mock as mock
+try:
+    import mock
+except ImportError:
+    import unittest.mock as mock
 
 import dockercloud
 from .fake_api import *
