@@ -267,11 +267,7 @@ class Triggerable(BasicObject):
 
 class StreamingAPI(BasicObject):
     def __init__(self, url):
-        self._ws_init(url)
-
-    def _ws_init(self, url):
         self.url = url
-
         user_agent = 'python-dockercloud/%s' % dockercloud.__version__
         if dockercloud.user_agent:
             user_agent = "%s %s" % (dockercloud.user_agent, user_agent)
