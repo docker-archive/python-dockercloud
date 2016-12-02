@@ -75,7 +75,7 @@ class AuthTestCase(unittest.TestCase):
         dockercloud.basic_auth = FAKE_BASIC_AUTH
         self.assertEqual({'Authorization': FAKE_DOCKERCLOUD_AUTH}, dockercloud.auth.get_auth_header())
 
-        print "===================="
+        print("====================")
         dockercloud.dockercloud_auth = None
         dockercloud.basic_auth = FAKE_BASIC_AUTH
         self.assertEqual({'Authorization': 'Basic %s' % (FAKE_BASIC_AUTH)}, dockercloud.auth.get_auth_header())
