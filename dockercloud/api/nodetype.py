@@ -6,7 +6,7 @@ from .base import Immutable
 class NodeType(Immutable):
     subsystem = "infra"
     endpoint = "/nodetype"
-    namespaced = False
+    is_namespaced = False
 
     @classmethod
     def _pk_key(cls):
