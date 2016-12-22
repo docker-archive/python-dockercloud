@@ -9,6 +9,7 @@ from .node import Node
 from .nodecluster import NodeCluster
 from .service import Service
 from .stack import Stack
+from .swarm import Swarm
 
 
 def is_uuid4(identifier):
@@ -186,6 +187,33 @@ class Utils:
                     raise ObjectNotFound("Cannot find an action cluster with the identifier '%s'" % identifier)
                 raise NonUniqueIdentifier(
                     "More than one action has the same identifier, please use the long uuid")
+
+        except (NonUniqueIdentifier, ObjectNotFound) as e:
+            if not raise_exceptions:
+                return e
+            raise e
+
+    @staticmethod
+    def fetch_remote_swarm(identifier, raise_exceptions=True):
+        try:
+            terms = identifier.split("/", 1)
+            if len(terms) == 1:
+                namespace = ""
+                name = identifier
+            else:
+                namespace = terms[0]
+                name = terms[1]
+            try:
+                return Swarm.fetch(name, namespace=namespace)
+            except Exception:
+                objects_same_identifier = Swarm.list(name__startswith=name, namespace=namespace)
+                if len(objects_same_identifier) == 1:
+                    swarm_id = objects_same_identifier[0].swarm_id
+                    return Swarm.fetch(swarm_id, namespace=namespace)
+                elif len(objects_same_identifier) == 0:
+                    raise ObjectNotFound("Cannot find a swarm cluster with name '%s'" % identifier)
+                raise NonUniqueIdentifier(
+                    "More than one action has the same identifier, please use swarm id")
 
         except (NonUniqueIdentifier, ObjectNotFound) as e:
             if not raise_exceptions:

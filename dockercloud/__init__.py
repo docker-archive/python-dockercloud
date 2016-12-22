@@ -23,6 +23,7 @@ from dockercloud.api.stack import Stack
 from dockercloud.api.exceptions import ApiError, AuthError, ObjectNotFound, NonUniqueIdentifier
 from dockercloud.api.utils import Utils
 from dockercloud.api.events import Events
+from dockercloud.api.swarm import Swarm
 from dockercloud.api.nodeaz import AZ
 
 __version__ = '1.0.9'
