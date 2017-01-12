@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 import json
 import logging
+import signal
 
 import websocket
 
@@ -44,15 +45,24 @@ class Events(StreamingAPI):
 
         super(self.__class__, self)._on_error(ws, e)
 
+
+    def _on_stop(self, signal, frame):
+        self.ws.close()
+        self.run_forever_flag = not self.run_forever_flag
+
     def run_forever(self, *args, **kwargs):
-        while True:
+
+        self.run_forever_flag = True
+        while self.run_forever_flag:
             if self.auth_error:
                 self.auth_error = False
                 raise AuthError("Not Authorized")
 
-            ws = websocket.WebSocketApp(self.url, header=self.header,
+            self.ws = websocket.WebSocketApp(self.url, header=self.header,
                                         on_open=self._on_open,
                                         on_message=self._on_message,
                                         on_error=self._on_error,
                                         on_close=self._on_close)
-            ws.run_forever(ping_interval=10, ping_timeout=5, *args, **kwargs)
+            signal.signal(signal.SIGINT, self._on_stop)
+            self.ws.run_forever(ping_interval=10, ping_timeout=5, *args, **kwargs)
+            
