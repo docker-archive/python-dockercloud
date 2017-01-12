@@ -69,7 +69,7 @@ def send_request(method, path, inject_header=True, **kwargs):
             # Try to parse the response.
             try:
                 json = response.json()
-                if response.headers and inject_header:
+                if response.headers and inject_header and response.headers.get("X-DockerCloud-Action-URI"):
                     json["dockercloud_action_uri"] = response.headers.get("X-DockerCloud-Action-URI", "")
             except TypeError:
                 raise ApiError("JSON Parse Error (%s %s). Response: %s" % (method, url, response.text))
