@@ -16,18 +16,19 @@ logger = logging.getLogger("python-dockercloud")
 class BasicObject(object):
     _api_version = 'v1'
 
-    def __init__(self, **kwargs):
-        pass
-
 
 class Restful(BasicObject):
-    _detail_uri = None
-    namespaced = True
+    namespacable = True
 
-    def __init__(self, **kwargs):
+    def __init__(self, namespace="", **kwargs):
         """Simply reflect all the values in kwargs"""
         for k, v in list(kwargs.items()):
             setattr(self, k, v)
+        if self.namespacable and namespace:
+            self._namespace = namespace
+        else:
+            self._namespace = dockercloud.namespace
+        self._resource_uri = ""
 
     def __addchanges__(self, name):
         changed_attrs = self.__getchanges__()
@@ -38,7 +39,7 @@ class Restful(BasicObject):
     def __setattr__(self, name, value):
         """Keeps track of what attributes have been set"""
         current_value = getattr(self, name, None)
-        if value != current_value:
+        if value != current_value and not name.startswith("_"):
             self.__addchanges__(name)
         super(Restful, self).__setattr__(name, value)
 
@@ -53,17 +54,10 @@ class Restful(BasicObject):
 
     def _loaddict(self, dict):
         """Internal. Sets the model attributes to the dictionary values passed"""
-        endpoint = getattr(self, 'endpoint', None)
-        subsystem = getattr(self, 'subsystem', None)
-        assert endpoint, "Endpoint not specified for %s" % self.__class__.__name__
-        assert subsystem, "Subsystem not specified for %s" % self.__class__.__name__
         for k, v in list(dict.items()):
             setattr(self, k, v)
-        if self.namespaced and dockercloud.namespace:
-            self._detail_uri = "/".join(["api", subsystem, self._api_version, dockercloud.namespace,
-                                         endpoint.strip("/"), self.pk])
-        else:
-            self._detail_uri = "/".join(["api", subsystem, self._api_version, endpoint.strip("/"), self.pk])
+
+        self._resource_uri = getattr(self, "resource_uri", None)
         self.__setchanges__([])
 
     @property
@@ -93,9 +87,9 @@ class Restful(BasicObject):
     def _perform_action(self, action, params=None, data={}):
         """Internal. Performs the specified action on the object remotely"""
         success = False
-        if not self._detail_uri:
+        if not self._resource_uri:
             raise ApiError("You must save the object before performing this operation")
-        path = "/".join([self._detail_uri.rstrip("/"), action.lstrip("/")])
+        path = "/".join([self._resource_uri.rstrip("/"), action.lstrip("/")])
         json = send_request("POST", path, params=params, data=data)
         if json:
             self._loaddict(json)
@@ -104,9 +98,9 @@ class Restful(BasicObject):
 
     def _expand_attribute(self, attribute):
         """Internal. Expands the given attribute from remote information"""
-        if not self._detail_uri:
+        if not self._resource_uri:
             raise ApiError("You must save the object before performing this operation")
-        path = "/".join([self._detail_uri, attribute])
+        path = "/".join([self._resource_uri, attribute])
         json = send_request("GET", path)
         if json:
             return json[attribute]
@@ -125,39 +119,43 @@ class Restful(BasicObject):
 
 class Immutable(Restful):
     @classmethod
-    def fetch(cls, pk):
-        instance = None
+    def fetch(cls, pk, namespace=""):
         endpoint = getattr(cls, 'endpoint', None)
         subsystem = getattr(cls, 'subsystem', None)
         assert endpoint, "Endpoint not specified for %s" % cls.__name__
         assert subsystem, "Subsystem not specified for %s" % cls.__name__
-        if cls.namespaced and dockercloud.namespace:
-            detail_uri = "/".join(["api", subsystem, cls._api_version, dockercloud.namespace, endpoint.strip("/"), pk])
+
+        if not namespace:
+            namespace = dockercloud.namespace
+        if cls.namespacable and namespace:
+            resource_uri = "/".join(["api", subsystem, cls._api_version, namespace, endpoint.strip("/"), pk])
         else:
-            detail_uri = "/".join(["api", subsystem, cls._api_version, endpoint.strip("/"), pk])
-        json = send_request('GET', detail_uri)
+            resource_uri = "/".join(["api", subsystem, cls._api_version, endpoint.strip("/"), pk])
+        json = send_request('GET', resource_uri)
         if json:
             instance = cls()
             instance._loaddict(json)
         return instance
 
     @classmethod
-    def list(cls, limit=None, **kwargs):
+    def list(cls, limit=None, namespace="", **kwargs):
         restful = []
         endpoint = getattr(cls, 'endpoint', None)
         subsystem = getattr(cls, 'subsystem', None)
         assert endpoint, "Endpoint not specified for %s" % cls.__name__
         assert subsystem, "Subsystem not specified for %s" % cls.__name__
 
-        if cls.namespaced and dockercloud.namespace:
-            detail_uri = "/".join(["api", subsystem, cls._api_version, dockercloud.namespace, endpoint.strip("/")])
+        if not namespace:
+            namespace = dockercloud.namespace
+        if cls.namespacable and namespace:
+            resource_uri = "/".join(["api", subsystem, cls._api_version, namespace, endpoint.strip("/")])
         else:
-            detail_uri = "/".join(["api", subsystem, cls._api_version, endpoint.strip("/")])
+            resource_uri = "/".join(["api", subsystem, cls._api_version, endpoint.strip("/")])
         objects = []
         while True:
             if limit and len(objects) >= limit:
                 break
-            json = send_request('GET', detail_uri, params=kwargs)
+            json = send_request('GET', resource_uri, params=kwargs)
             objs = json.get('objects', [])
             meta = json.get('meta', {})
             next_url = meta.get('next', '')
@@ -182,10 +180,10 @@ class Immutable(Restful):
         if self.is_dirty and not force:
             # We have local non-committed changes - rejecting the refresh
             success = False
-        elif not self._detail_uri:
+        elif not self._resource_uri:
             raise ApiError("You must save the object before performing this operation")
         else:
-            json = send_request("GET", self._detail_uri)
+            json = send_request("GET", self._resource_uri)
             if json:
                 self._loaddict(json)
                 success = True
@@ -202,16 +200,17 @@ class Mutable(Immutable):
         return cls(**kwargs)
 
     def delete(self):
-        if not self._detail_uri:
+        if not self._resource_uri:
             raise ApiError("You must save the object before performing this operation")
         action = "DELETE"
-        url = self._detail_uri
+        url = self._resource_uri
         json = send_request(action, url)
         if json:
             self._loaddict(json)
+            self._resource_uri = None
         else:
             # Object deleted successfully and nothing came back - deleting PK reference.
-            self._detail_uri = None
+            self._resource_uri = None
             # setattr(self, self._pk_key(), None) -- doesn't work
             self.__setchanges__([])
         return True
@@ -228,15 +227,15 @@ class Mutable(Immutable):
             assert endpoint, "Endpoint not specified for %s" % self.__class__.__name__
             assert subsystem, "Subsystem not specified for %s" % self.__class__.__name__
             # Figure out whether we should do a create or update
-            if not self._detail_uri:
+            if not self._resource_uri:
                 action = "POST"
-                if cls.namespaced and dockercloud.namespace:
-                    path = "/".join(["api", subsystem, self._api_version, dockercloud.namespace, endpoint.lstrip("/")])
+                if cls.namespacable and self._namespace:
+                    path = "/".join(["api", subsystem, self._api_version, self._namespace, endpoint.lstrip("/")])
                 else:
                     path = "/".join(["api", subsystem, self._api_version, endpoint.lstrip("/")])
             else:
                 action = "PATCH"
-                path = self._detail_uri
+                path = self._resource_uri
             # Construct the necessary params
             params = {}
             for attr in self.__getchanges__():
@@ -322,13 +321,16 @@ class StreamingAPI(BasicObject):
 
 
 class StreamingLog(StreamingAPI):
-    def __init__(self, subsystem, resource, uuid, tail, follow):
+    def __init__(self, subsystem, resource, uuid, tail, follow, namespace=""):
         endpoint = "%s/%s/logs/?follow=%s" % (resource, uuid, str(follow).lower())
         if tail:
             endpoint = "%s&tail=%d" % (endpoint, tail)
-        if dockercloud.namespace:
+
+        if not namespace:
+            namespace = dockercloud.namespace
+        if namespace:
             url = "/".join([dockercloud.stream_host.rstrip("/"), "api", subsystem, self._api_version,
-                            dockercloud.namespace, endpoint.lstrip("/")])
+                            self._namespace, endpoint.lstrip("/")])
         else:
             url = "/".join([dockercloud.stream_host.rstrip("/"), "api", subsystem, self._api_version,
                             endpoint.lstrip("/")])
@@ -348,11 +350,13 @@ class StreamingLog(StreamingAPI):
 
 
 class Exec(StreamingAPI):
-    def __init__(self, uuid, cmd='sh'):
+    def __init__(self, uuid, cmd='sh', namespace=""):
         endpoint = "container/%s/exec/?command=%s" % (uuid, urllib.quote_plus(cmd))
-        if dockercloud.namespace:
+        if not namespace:
+            namespace = dockercloud.namespace
+        if namespace:
             url = "/".join([dockercloud.stream_host.rstrip("/"), "api", "app", self._api_version,
-                            dockercloud.namespace, endpoint.lstrip("/")])
+                            namespace, endpoint.lstrip("/")])
         else:
             url = "/".join([dockercloud.stream_host.rstrip("/"), "api", "app", self._api_version, endpoint.lstrip("/")])
         super(self.__class__, self).__init__(url)

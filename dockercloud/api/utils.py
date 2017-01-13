@@ -43,7 +43,7 @@ class Utils:
             return Action.fetch(id)
         else:
             raise ApiError(
-                    "Unsupported resource type. Only support: action, container, node, nodecluster, service, stack")
+                "Unsupported resource type. Only support: action, container, node, nodecluster, service, stack")
 
     @staticmethod
     def fetch_remote_container(identifier, raise_exceptions=True):
@@ -162,7 +162,7 @@ class Utils:
                 elif len(objects_same_identifier) == 0:
                     raise ObjectNotFound("Cannot find a node cluster with the identifier '%s'" % identifier)
                 raise NonUniqueIdentifier(
-                        "More than one node cluster has the same identifier, please use the long uuid")
+                    "More than one node cluster has the same identifier, please use the long uuid")
 
         except (NonUniqueIdentifier, ObjectNotFound) as e:
             if not raise_exceptions:
@@ -185,7 +185,7 @@ class Utils:
                 elif len(objects_same_identifier) == 0:
                     raise ObjectNotFound("Cannot find an action cluster with the identifier '%s'" % identifier)
                 raise NonUniqueIdentifier(
-                        "More than one action has the same identifier, please use the long uuid")
+                    "More than one action has the same identifier, please use the long uuid")
 
         except (NonUniqueIdentifier, ObjectNotFound) as e:
             if not raise_exceptions:

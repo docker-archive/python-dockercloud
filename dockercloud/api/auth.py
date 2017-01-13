@@ -12,6 +12,7 @@ from .http import send_request
 
 HUB_INDEX = "https://index.docker.io/v1/"
 
+
 def authenticate(username, password):
     verify_credential(username, password)
     dockercloud.basic_auth = base64.b64encode("%s:%s" % (username, password))
@@ -55,7 +56,8 @@ def load_from_file(f="~/.docker/config.json"):
             p = subprocess.Popen([cmd, 'get'], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
             out = p.communicate(input=HUB_INDEX)[0]
         except:
-            raise dockercloud.AuthError('error getting credentials - err: exec: "%s": executable file not found in $PATH, out: ``' % cmd)
+            raise dockercloud.AuthError(
+                'error getting credentials - err: exec: "%s": executable file not found in $PATH, out: ``' % cmd)
 
         try:
             credential = json.loads(out)

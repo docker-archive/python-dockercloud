@@ -6,7 +6,7 @@ from .base import Immutable
 class Region(Immutable):
     subsystem = "infra"
     endpoint = "/region"
-    namespaced = False
+    namespacable = False
 
     @classmethod
     def _pk_key(cls):
