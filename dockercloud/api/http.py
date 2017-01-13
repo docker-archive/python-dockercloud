@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import logging
+import time
 
 from requests import Request, Session
 from requests import utils
@@ -12,9 +13,14 @@ from .exceptions import ApiError, AuthError
 logger = logging.getLogger("python-dockercloud")
 
 global_session = Session()
+last_connection_time = time.time()
 
-
-def get_session():
+def get_session(time=time):
+    if (dockercloud.reconnection_interval >= 0):
+        global last_connection_time
+        if (time.time() - last_connection_time > dockercloud.reconnection_interval):
+            new_session()
+        last_connection_time = time.time()
     return global_session
 
 

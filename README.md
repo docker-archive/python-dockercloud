@@ -29,6 +29,20 @@ The authentication can be configured in the following ways:
 		export DOCKERCLOUD_USER=username
 		export DOCKERCLOUD_APIKEY=apikey
 
+## Optional parameters
+
+You may set the reconnection interval (Integer, in seconds) using the variable DOCKERCLOUD_RECONNECTION_INTERVAL:
+
+		export DOCKERCLOUD_RECONNECTION_INTERVAL=240
+
+Session uses a socket that may be closed by some peer. To prevent the "Read timed out" issue you should use this option.
+
+Possible values:
+
+* `-1` (by default) means no reconnect (as usually it works)
+* `0` means reconnect on each request
+* any positive value means that the connection will be reopened if the time diff between last 2 requests is more than that value
+
 ## Namespace
 
 To support teams and orgs, you can specify the namespace in the following ways:
