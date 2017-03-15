@@ -1,8 +1,12 @@
 from __future__ import absolute_import
 
 import unittest
+import six
 
-import unittest.mock as mock
+if six.PY2:
+    import mock
+elif six.PY3:
+    import unittest.mock as mock
 
 import dockercloud
 from .fake_api import *

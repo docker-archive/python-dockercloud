@@ -41,8 +41,8 @@ if os.environ.get('DOCKERCLOUD_USER') and os.environ.get('DOCKERCLOUD_APIKEY'):
         ("%s:%s" % (os.environ.get('DOCKERCLOUD_USER'), os.environ.get('DOCKERCLOUD_APIKEY'))).encode('latin-1')
     ).decode()
 
-rest_host = os.environ.get("DOCKERCLOUD_REST_HOST", default='https://cloud.docker.com/')
-stream_host = os.environ.get("DOCKERCLOUD_STREAM_HOST", default='wss://ws.cloud.docker.com/')
+rest_host = os.environ.get("DOCKERCLOUD_REST_HOST") or 'https://cloud.docker.com/'
+stream_host = os.environ.get("DOCKERCLOUD_STREAM_HOST") or 'wss://ws.cloud.docker.com/'
 
 namespace = os.environ.get('DOCKERCLOUD_NAMESPACE')
 
