@@ -1,10 +1,8 @@
-from __future__ import absolute_import
-from __future__ import unicode_literals
+from __future__ import absolute_import, print_function
 
 import os
 import tempfile
 import unittest
-import six
 
 import unittest.mock as mock
 
@@ -25,7 +23,7 @@ class AuthTestCase(unittest.TestCase):
     def test_auth_authenticate(self, mock_verify_credential):
         dockercloud.auth.authenticate(FAKE_USER, FAKE_PASSWORD)
         mock_verify_credential.assert_called_with(FAKE_USER, FAKE_PASSWORD)
-        self.assertEqual(six.u(dockercloud.basic_auth), FAKE_BASIC_AUTH)
+        self.assertEqual(dockercloud.basic_auth, FAKE_BASIC_AUTH.encode('latin-1'))
         self.tearDown()
 
     def test_auth_is_authenticated(self):
@@ -65,7 +63,7 @@ class AuthTestCase(unittest.TestCase):
 	}
 }''' % FAKE_BASIC_AUTH)
         basic_auth = dockercloud.auth.load_from_file(f.name)
-        self.assertEqual(basic_auth, FAKE_BASIC_AUTH)
+        self.assertEqual(basic_auth, FAKE_BASIC_AUTH.encode('latin-1'))
         os.remove(temp.name)
 
     def test_auth_load_from_file_with_exception(self):

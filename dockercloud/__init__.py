@@ -5,7 +5,6 @@ import logging
 import os
 
 import requests
-import six
 from future.standard_library import install_aliases
 
 install_aliases()
@@ -34,15 +33,16 @@ dockercloud_auth = os.environ.get('DOCKERCLOUD_AUTH')
 basic_auth = auth.load_from_file("~/.docker/config.json")
 
 if os.environ.get('DOCKERCLOUD_USER') and os.environ.get('DOCKERCLOUD_PASS'):
-    b64value = "%s:%s" % (os.environ.get('DOCKERCLOUD_USER'), os.environ.get('DOCKERCLOUD_PASS'))
+    basic_auth = base64.b64encode(
+        ("%s:%s" % (os.environ.get('DOCKERCLOUD_USER'), os.environ.get('DOCKERCLOUD_PASS'))).encode('latin-1')
+    )
 if os.environ.get('DOCKERCLOUD_USER') and os.environ.get('DOCKERCLOUD_APIKEY'):
-    b64value = "%s:%s" % (os.environ.get('DOCKERCLOUD_USER'), os.environ.get('DOCKERCLOUD_APIKEY'))
+    basic_auth = base64.b64encode(
+        ("%s:%s" % (os.environ.get('DOCKERCLOUD_USER'), os.environ.get('DOCKERCLOUD_APIKEY'))).encode('latin-1')
+    )
 
-if basic_auth:
-    basic_auth = base64.b64encode(six.b(b64value))
-
-rest_host = six.b(os.environ.get("DOCKERCLOUD_REST_HOST", default='https://cloud.docker.com/'))
-stream_host = six.b(os.environ.get("DOCKERCLOUD_STREAM_HOST", default='wss://ws.cloud.docker.com/'))
+rest_host = os.environ.get("DOCKERCLOUD_REST_HOST", default='https://cloud.docker.com/')
+stream_host = os.environ.get("DOCKERCLOUD_STREAM_HOST", default='wss://ws.cloud.docker.com/')
 
 namespace = os.environ.get('DOCKERCLOUD_NAMESPACE')
 
