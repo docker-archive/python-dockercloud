@@ -68,7 +68,7 @@ def load_from_file(f="~/.docker/config.json"):
             return None
 
     else:
-        return data.get("auths", {}).get(HUB_INDEX, {}).get("auth", None).encode('latin-1')
+        return data.get("auths", {}).get(HUB_INDEX, {}).get("auth", None)
 
 
 def get_auth_header():
