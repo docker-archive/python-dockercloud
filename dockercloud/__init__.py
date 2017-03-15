@@ -35,11 +35,11 @@ basic_auth = auth.load_from_file("~/.docker/config.json")
 if os.environ.get('DOCKERCLOUD_USER') and os.environ.get('DOCKERCLOUD_PASS'):
     basic_auth = base64.b64encode(
         ("%s:%s" % (os.environ.get('DOCKERCLOUD_USER'), os.environ.get('DOCKERCLOUD_PASS'))).encode('latin-1')
-    )
+    ).decode()
 if os.environ.get('DOCKERCLOUD_USER') and os.environ.get('DOCKERCLOUD_APIKEY'):
     basic_auth = base64.b64encode(
         ("%s:%s" % (os.environ.get('DOCKERCLOUD_USER'), os.environ.get('DOCKERCLOUD_APIKEY'))).encode('latin-1')
-    )
+    ).decode()
 
 rest_host = os.environ.get("DOCKERCLOUD_REST_HOST", default='https://cloud.docker.com/')
 stream_host = os.environ.get("DOCKERCLOUD_STREAM_HOST", default='wss://ws.cloud.docker.com/')

@@ -73,16 +73,14 @@ def load_from_file(f="~/.docker/config.json"):
 
 def get_auth_header():
     try:
-        dockercloud.basic_auth = base64.b64encode(
-            ("%s:%s" % (dockercloud.user, dockercloud.password)).encode('latin-1')
-        )
+        dockercloud.basic_auth = base64.b64encode(("%s:%s" % (dockercloud.user, dockercloud.password))
+                                                  .encode('latin-1')).decode()
     except:
         pass
 
     try:
-        dockercloud.basic_auth = base64.b64encode(
-            ("%s:%s" % (dockercloud.user, dockercloud.apikey)).encode('latin-1')
-        )
+        dockercloud.basic_auth = base64.b64encode(("%s:%s" % (dockercloud.user, dockercloud.apikey))
+                                                  .encode('latin-1')).decode()
     except:
         pass
 
