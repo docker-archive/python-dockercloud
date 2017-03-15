@@ -63,7 +63,7 @@ class AuthTestCase(unittest.TestCase):
 	}
 }''' % FAKE_BASIC_AUTH)
         basic_auth = dockercloud.auth.load_from_file(f.name)
-        self.assertEqual(basic_auth, FAKE_BASIC_AUTH.encode('latin-1'))
+        self.assertEqual(basic_auth, FAKE_BASIC_AUTH)
         os.remove(temp.name)
 
     def test_auth_load_from_file_with_exception(self):
