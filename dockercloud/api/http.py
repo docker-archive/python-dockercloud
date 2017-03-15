@@ -34,7 +34,7 @@ def new_session():
 
 def send_request(method, path, inject_header=True, **kwargs):
     json = None
-    url = urljoin(dockercloud.rest_host.encode("ascii"), path.strip("/").encode("ascii", "ignore"))
+    url = urljoin(dockercloud.rest_host.encode(), path.strip("/").encode())
     if not url.endswith(b"/"):
         url = b"%s/" % url
     user_agent = 'python-dockercloud/%s' % dockercloud.__version__
