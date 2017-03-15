@@ -12,9 +12,11 @@ from .http import send_request
 
 HUB_INDEX = "https://index.docker.io/v1/"
 
+
 def authenticate(username, password):
     verify_credential(username, password)
-    dockercloud.basic_auth = base64.b64encode("%s:%s" % (username, password))
+    cred = "%s:%s" % (username, password)
+    dockercloud.basic_auth = base64.b64encode(cred.encode())
 
 
 def verify_credential(username, password):
@@ -71,12 +73,14 @@ def load_from_file(f="~/.docker/config.json"):
 
 def get_auth_header():
     try:
-        dockercloud.basic_auth = base64.b64encode("%s:%s" % (dockercloud.user, dockercloud.password))
+        cred = "%s:%s" % (dockercloud.user, dockercloud.password)
+        dockercloud.basic_auth = base64.b64encode(cred.encode()).decode()
     except:
         pass
 
     try:
-        dockercloud.basic_auth = base64.b64encode("%s:%s" % (dockercloud.user, dockercloud.apikey))
+        cred = "%s:%s" % (dockercloud.user, dockercloud.apikey)
+        dockercloud.basic_auth = base64.b64encode(cred.encode()).decode()
     except:
         pass
 
