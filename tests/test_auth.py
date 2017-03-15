@@ -1,8 +1,10 @@
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import os
 import tempfile
 import unittest
+import six
 
 import unittest.mock as mock
 
@@ -23,7 +25,7 @@ class AuthTestCase(unittest.TestCase):
     def test_auth_authenticate(self, mock_verify_credential):
         dockercloud.auth.authenticate(FAKE_USER, FAKE_PASSWORD)
         mock_verify_credential.assert_called_with(FAKE_USER, FAKE_PASSWORD)
-        self.assertEqual(dockercloud.basic_auth, FAKE_BASIC_AUTH)
+        self.assertEqual(six.u(dockercloud.basic_auth), FAKE_BASIC_AUTH)
         self.tearDown()
 
     def test_auth_is_authenticated(self):
@@ -75,7 +77,7 @@ class AuthTestCase(unittest.TestCase):
         dockercloud.basic_auth = FAKE_BASIC_AUTH
         self.assertEqual({'Authorization': FAKE_DOCKERCLOUD_AUTH}, dockercloud.auth.get_auth_header())
 
-        print "===================="
+        print("====================")
         dockercloud.dockercloud_auth = None
         dockercloud.basic_auth = FAKE_BASIC_AUTH
         self.assertEqual({'Authorization': 'Basic %s' % (FAKE_BASIC_AUTH)}, dockercloud.auth.get_auth_header())

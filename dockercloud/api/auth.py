@@ -5,6 +5,7 @@ import json
 import os
 import subprocess
 
+import six
 from requests.auth import HTTPBasicAuth
 
 import dockercloud
@@ -12,9 +13,10 @@ from .http import send_request
 
 HUB_INDEX = "https://index.docker.io/v1/"
 
+
 def authenticate(username, password):
     verify_credential(username, password)
-    dockercloud.basic_auth = base64.b64encode("%s:%s" % (username, password))
+    dockercloud.basic_auth = base64.b64encode(six.b("%s:%s" % (username, password)))
 
 
 def verify_credential(username, password):

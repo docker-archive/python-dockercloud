@@ -2,11 +2,12 @@ import datetime
 import json
 
 import requests
+import six
 
 FAKE_USER = 'fake_user'
 FAKE_PASSWORD = 'fake_password'
 FAKE_DOCKERCLOUD_AUTH = 'fake_auth'
-FAKE_BASIC_AUTH = 'ZmFrZV91c2VyOmZha2VfcGFzc3dvcmQ='
+FAKE_BASIC_AUTH = six.b('ZmFrZV91c2VyOmZha2VfcGFzc3dvcmQ=')
 FAKE_APIKEY_AUTH = 'ZmFrZV90dXR1bV91c2VyOmZha2VfdHV0dW1fYXBpa2V5'
 FAKE_APIKEY = 'fake_apikey'
 FAKE_EMAIL = 'fake@docker.com'

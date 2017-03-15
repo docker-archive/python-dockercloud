@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import logging
 
@@ -34,9 +35,9 @@ def new_session():
 
 def send_request(method, path, inject_header=True, **kwargs):
     json = None
-    url = urljoin(dockercloud.rest_host.rstrip("/"), path.strip("/").encode("ascii", "ignore"))
-    if not url.endswith("/"):
-        url = "%s/" % url
+    url = urljoin(dockercloud.rest_host, path.strip("/").encode("ascii", "ignore"))
+    if not url.endswith(b"/"):
+        url = b"%s/" % url
     user_agent = 'python-dockercloud/%s' % dockercloud.__version__
     if dockercloud.user_agent:
         user_agent = "%s %s" % (dockercloud.user_agent, user_agent)
