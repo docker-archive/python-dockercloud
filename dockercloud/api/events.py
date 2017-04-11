@@ -45,7 +45,6 @@ class Events(StreamingAPI):
 
         super(self.__class__, self)._on_error(ws, e)
 
-
     def _on_stop(self, signal, frame):
         self.ws.close()
         self.run_forever_flag = not self.run_forever_flag
@@ -59,10 +58,9 @@ class Events(StreamingAPI):
                 raise AuthError("Not Authorized")
 
             self.ws = websocket.WebSocketApp(self.url, header=self.header,
-                                        on_open=self._on_open,
-                                        on_message=self._on_message,
-                                        on_error=self._on_error,
-                                        on_close=self._on_close)
+                                             on_open=self._on_open,
+                                             on_message=self._on_message,
+                                             on_error=self._on_error,
+                                             on_close=self._on_close)
             signal.signal(signal.SIGINT, self._on_stop)
             self.ws.run_forever(ping_interval=10, ping_timeout=5, *args, **kwargs)
-            

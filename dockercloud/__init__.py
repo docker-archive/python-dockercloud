@@ -40,9 +40,13 @@ stream_host = os.environ.get("DOCKERCLOUD_STREAM_HOST") or 'wss://ws.cloud.docke
 
 namespace = os.environ.get('DOCKERCLOUD_NAMESPACE')
 
-reconnection_interval = int(os.environ.get('DOCKERCLOUD_RECONNECTION_INTERVAL', '-1')) # in seconds, if the connection is inactive more than that value it will be recreated
+# in seconds, if the connection is inactive more than that value it will be recreated
+reconnection_interval = int(os.environ.get('DOCKERCLOUD_RECONNECTION_INTERVAL', '-1'))
 
 user_agent = None
+
+# in seconds, make the api call timeout after X seconds, None usually is 15 mins
+api_timeout = None
 
 logging.basicConfig()
 logger = logging.getLogger("python-dockercloud")
