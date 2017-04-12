@@ -4,7 +4,10 @@ import os
 import tempfile
 import unittest
 
-import unittest.mock as mock
+try:
+    import mock
+except ImportError:
+    import unittest.mock as mock
 
 import dockercloud
 from .fake_api import *
@@ -75,7 +78,6 @@ class AuthTestCase(unittest.TestCase):
         dockercloud.basic_auth = FAKE_BASIC_AUTH
         self.assertEqual({'Authorization': FAKE_DOCKERCLOUD_AUTH}, dockercloud.auth.get_auth_header())
 
-        print "===================="
         dockercloud.dockercloud_auth = None
         dockercloud.basic_auth = FAKE_BASIC_AUTH
         self.assertEqual({'Authorization': 'Basic %s' % (FAKE_BASIC_AUTH)}, dockercloud.auth.get_auth_header())

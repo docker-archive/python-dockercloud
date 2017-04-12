@@ -16,7 +16,7 @@ class NodeCluster(Mutable, Taggable):
     def create(cls, **kwargs):
         for key, value in kwargs.items():
             if key == "node_type" and isinstance(value, NodeType):
-                kwargs[key] = getattr(value, "resource_uri", "")
+                kwargs[key] = getattr(value, "_resource_uri", "")
             if key == "region" and isinstance(value, Region):
-                kwargs[key] = getattr(value, "resource_uri", "")
+                kwargs[key] = getattr(value, "_resource_uri", "")
         return cls(**kwargs)

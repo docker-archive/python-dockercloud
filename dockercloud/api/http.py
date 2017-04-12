@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import logging
+import time
 
 from requests import Request, Session
 from requests import utils
@@ -12,9 +13,15 @@ from .exceptions import ApiError, AuthError
 logger = logging.getLogger("python-dockercloud")
 
 global_session = Session()
+last_connection_time = time.time()
 
 
-def get_session():
+def get_session(time=time):
+    if (dockercloud.reconnection_interval >= 0):
+        global last_connection_time
+        if (time.time() - last_connection_time > dockercloud.reconnection_interval):
+            new_session()
+        last_connection_time = time.time()
     return global_session
 
 
@@ -55,7 +62,12 @@ def send_request(method, path, inject_header=True, **kwargs):
     # make the request
     req = s.prepare_request(request)
     logger.info("Prepared Request: %s, %s, %s, %s" % (req.method, req.url, req.headers, kwargs))
-    response = s.send(req, **kw_args)
+
+    if dockercloud.api_timeout:
+        response = s.send(req, timeout=dockercloud.api_timeout, **kw_args)
+    else:
+        response = s.send(req, **kw_args)
+
     status_code = getattr(response, 'status_code', None)
     logger.info("Response: Status %s, %s, %s" % (str(status_code), response.headers, response.text))
 
