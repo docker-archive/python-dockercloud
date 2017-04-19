@@ -37,7 +37,7 @@ class Events(StreamingAPI):
             return
 
         if self.message_handler:
-            self.message_handler(message)
+            self.message_handler(event)
 
     def _on_error(self, ws, e):
         if isinstance(e, websocket._exceptions.WebSocketBadStatusException) and getattr(e, "status_code") == 401:
