@@ -4,7 +4,6 @@ import logging
 import time
 
 from requests import Request, Session
-from requests import utils
 from urllib.parse import urljoin
 
 import dockercloud
@@ -55,18 +54,16 @@ def send_request(method, path, inject_header=True, **kwargs):
     # construct request
     s = get_session()
     request = Request(method, url, headers=headers, **kwargs)
-    # get environment proxies
-    env_proxies = utils.get_environ_proxies(url) or {}
-    kw_args = {'proxies': env_proxies}
 
     # make the request
     req = s.prepare_request(request)
+    proxy = s.rebuild_proxies(req, None)
     logger.info("Prepared Request: %s, %s, %s, %s" % (req.method, req.url, req.headers, kwargs))
 
     if dockercloud.api_timeout:
-        response = s.send(req, timeout=dockercloud.api_timeout, **kw_args)
+        response = s.send(req, timeout=dockercloud.api_timeout, proxies=proxy)
     else:
-        response = s.send(req, **kw_args)
+        response = s.send(req, proxies=proxy)
 
     status_code = getattr(response, 'status_code', None)
     logger.info("Response: Status %s, %s, %s" % (str(status_code), response.headers, response.text))

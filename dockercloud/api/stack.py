@@ -22,5 +22,5 @@ class Stack(Mutable):
     def export(self):
         if not self.resource_uri:
             raise ApiError("You must save the object before performing this operation")
-        url = "/".join([self.resource_uri, "export"])
+        url = "/".join([self.resource_uri.rstrip("/"), "export"])
         return send_request("GET", url, inject_header=False)
