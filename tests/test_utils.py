@@ -222,3 +222,34 @@ class FetchRemoteObjectTestCase(unittest.TestCase):
         mock_list.side_effect = [ApiError, ApiError]
         self.assertRaises(ApiError, dockercloud.Utils.fetch_remote_nodecluster, 'uuid_or_name', True)
         self.assertRaises(ApiError, dockercloud.Utils.fetch_remote_nodecluster, 'uuid_or_name', False)
+
+    @mock.patch('dockercloud.Swarm.list')
+    @mock.patch('dockercloud.Swarm.fetch')
+    def test_fetch_remote_swarm(self, mock_fetch, mock_list):
+        # test the identifier w/ and w/o namespace
+        mock_fetch.return_value = 'returned'
+        self.assertEqual(dockercloud.Utils.fetch_remote_swarm('abc', True), 'returned')
+        mock_fetch.assert_called_with("abc", namespace="")
+
+        self.assertEqual(dockercloud.Utils.fetch_remote_swarm('tifayuki/abc', True), 'returned')
+        mock_fetch.assert_called_with("abc", namespace="tifayuki")
+
+        self.assertEqual(dockercloud.Utils.fetch_remote_swarm('tifayuki/abc/xyz', True), 'returned')
+        mock_fetch.assert_called_with("abc/xyz", namespace="tifayuki")
+
+        # test no swarm found
+        mock_fetch.side_effect = ObjectNotFound
+        self.assertRaises(ObjectNotFound, dockercloud.Utils.fetch_remote_swarm, 'swarm_id', True)
+        self.assertIsInstance(dockercloud.Utils.fetch_remote_swarm('swarm_id', False), ObjectNotFound)
+
+        # test multi-swarm found
+        mock_fetch.return_value = 'returned'
+        mock_list.side_effect = [['swarm1', 'swarm2'], []]
+        self.assertRaises(NonUniqueIdentifier, dockercloud.Utils.fetch_remote_swarm, 'swarm_id', True)
+        mock_list.side_effect = [['swarm1', 'swarm2'], []]
+        self.assertIsInstance(dockercloud.Utils.fetch_remote_swarm('swarm_id', False), NonUniqueIdentifier)
+
+        # test api error
+        mock_list.side_effect = [ApiError, ApiError]
+        self.assertRaises(ApiError, dockercloud.Utils.fetch_remote_swarm, 'swarm_id', True)
+        self.assertRaises(ApiError, dockercloud.Utils.fetch_remote_swarm, 'swarm_id', False)
