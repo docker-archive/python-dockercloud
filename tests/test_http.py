@@ -1,9 +1,12 @@
 from __future__ import absolute_import
 
+import requests
 import unittest
 
-import requests
-import unittest.mock as mock
+try:
+    import mock
+except ImportError:
+    import unittest.mock as mock
 
 import dockercloud
 from dockercloud.api.base import send_request

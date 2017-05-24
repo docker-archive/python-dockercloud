@@ -57,7 +57,8 @@ def load_from_file(f="~/.docker/config.json"):
             p = subprocess.Popen([cmd, 'get'], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
             out = p.communicate(input=HUB_INDEX)[0]
         except:
-            raise dockercloud.AuthError('error getting credentials - err: exec: "%s": executable file not found in $PATH, out: ``' % cmd)
+            raise dockercloud.AuthError(
+                'error getting credentials - err: exec: "%s": executable file not found in $PATH, out: ``' % cmd)
 
         try:
             credential = json.loads(out)

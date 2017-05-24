@@ -1,11 +1,10 @@
 from __future__ import absolute_import
 
 import unittest
-import six
 
-if six.PY2:
+try:
     import mock
-elif six.PY3:
+except ImportError:
     import unittest.mock as mock
 
 import dockercloud

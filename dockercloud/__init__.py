@@ -25,7 +25,7 @@ from dockercloud.api.utils import Utils
 from dockercloud.api.events import Events
 from dockercloud.api.nodeaz import AZ
 
-__version__ = '1.0.9'
+__version__ = '1.0.11'
 
 dockercloud_auth = os.environ.get('DOCKERCLOUD_AUTH')
 basic_auth = auth.load_from_file("~/.docker/config.json")
@@ -42,7 +42,13 @@ stream_host = os.environ.get("DOCKERCLOUD_STREAM_HOST") or 'wss://ws.cloud.docke
 
 namespace = os.environ.get('DOCKERCLOUD_NAMESPACE')
 
+# in seconds, if the connection is inactive more than that value it will be recreated
+reconnection_interval = int(os.environ.get('DOCKERCLOUD_RECONNECTION_INTERVAL', '-1'))
+
 user_agent = None
+
+# in seconds, make the api call timeout after X seconds, None usually is 15 mins
+api_timeout = None
 
 logging.basicConfig()
 logger = logging.getLogger("python-dockercloud")

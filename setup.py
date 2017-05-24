@@ -33,7 +33,7 @@ with open('./test-requirements.txt') as test_reqs_txt:
 setup(
         name="python-dockercloud",
         version=find_version('dockercloud', '__init__.py'),
-        packages=find_packages(),
+        packages=find_packages(exclude=['tests']),
         install_requires=requirements,
         tests_require=test_requirements,
         provides=['docker'],

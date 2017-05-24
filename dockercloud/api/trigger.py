@@ -8,6 +8,7 @@ from .http import send_request
 class Trigger(BasicObject):
     def __init__(self):
         self.trigger = None
+        self.resource_uri = None
 
     def add(self, name=None, operation=None):
 
@@ -30,11 +31,11 @@ class Trigger(BasicObject):
         return cls(**kwargs)
 
     def delete(self, uuid):
-        if not self.endpoint:
+        if not self.resource_uri:
             raise ApiError("You must initialize the Trigger object before performing this operation")
 
         action = "DELETE"
-        url = "/".join([self.endpoint, uuid])
+        url = "/".join([self.resource_uri, uuid])
         send_request(action, url)
         return True
 
@@ -43,11 +44,11 @@ class Trigger(BasicObject):
         if not isinstance(triggerable, Triggerable):
             raise ApiError("The object does not support trigger")
 
-        if not triggerable._detail_uri:
+        if not triggerable.resource_uri:
             raise ApiError("You must save the triggerable object before performing this operation")
 
         trigger = cls()
-        trigger.endpoint = "/".join([triggerable._detail_uri, "trigger"])
+        trigger.resource_uri = "/".join([triggerable.resource_uri, "trigger"])
         handlers = []
         for t in trigger.list():
             triggername = t.get("name", "")
@@ -56,12 +57,12 @@ class Trigger(BasicObject):
         return trigger
 
     def list(self, **kwargs):
-        if not self.endpoint:
+        if not self.resource_uri:
             raise ApiError("You must initialize the Trigger object before performing this operation")
 
         objects = []
         while True:
-            json = send_request('GET', self.endpoint, params=kwargs)
+            json = send_request('GET', self.resource_uri, params=kwargs)
             objs = json.get('objects', [])
             meta = json.get('meta', {})
             next_url = meta.get('next', '')
@@ -77,23 +78,23 @@ class Trigger(BasicObject):
         return objects
 
     def save(self):
-        if not self.endpoint:
+        if not self.resource_uri:
             raise ApiError("You must initialize the Trigger object before performing this operation")
 
         if self.trigger is None:
             return True
 
-        json = send_request("POST", self.endpoint, data=json_parser.dumps(self.trigger))
+        json = send_request("POST", self.resource_uri, data=json_parser.dumps(self.trigger))
         if json:
             self.clear()
             self.clear()
             return True
 
     def call(self, uuid):
-        if not self.endpoint:
+        if not self.resource_uri:
             raise ApiError("You must initialize the Trigger object before performing this operation")
 
-        json = send_request("POST", "/".join([self.endpoint, uuid + "/call"]))
+        json = send_request("POST", "/".join([self.resource_uri, uuid + "/call"]))
         if json:
             return True
         return False

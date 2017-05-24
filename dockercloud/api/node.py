@@ -8,7 +8,7 @@ class Node(Mutable, Taggable):
     endpoint = "/node"
 
     def save(self):
-        if not self._detail_uri:
+        if not self.resource_uri:
             raise AttributeError("Adding a new node is not supported via 'save' method")
         super(Node, self).save()
 
