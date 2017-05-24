@@ -1,3 +1,11 @@
-sut:
-  build: .
-  command: python setup.py test
+version: '3'
+services:
+  sut:
+    build: .
+    command: python setup.py test
+
+  sut-py3:
+    build: 
+      context: .
+      dockerfile: Dockerfile.py3
+    command: python setup.py test
