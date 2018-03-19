@@ -330,7 +330,7 @@ class StreamingLog(StreamingAPI):
             namespace = dockercloud.namespace
         if namespace:
             url = "/".join([dockercloud.stream_host.rstrip("/"), "api", subsystem, self._api_version,
-                            self._namespace, endpoint.lstrip("/")])
+                            namespace, endpoint.lstrip("/")])
         else:
             url = "/".join([dockercloud.stream_host.rstrip("/"), "api", subsystem, self._api_version,
                             endpoint.lstrip("/")])
