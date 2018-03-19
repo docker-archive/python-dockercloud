@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import os
 import tempfile
@@ -26,7 +26,7 @@ class AuthTestCase(unittest.TestCase):
     def test_auth_authenticate(self, mock_verify_credential):
         dockercloud.auth.authenticate(FAKE_USER, FAKE_PASSWORD)
         mock_verify_credential.assert_called_with(FAKE_USER, FAKE_PASSWORD)
-        self.assertEqual(dockercloud.basic_auth, FAKE_BASIC_AUTH)
+        self.assertEqual(dockercloud.basic_auth, FAKE_BASIC_AUTH.encode('latin-1'))
         self.tearDown()
 
     def test_auth_is_authenticated(self):
